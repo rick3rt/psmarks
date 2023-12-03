@@ -91,6 +91,7 @@ function Save-PSMarks {
         $marks
     )    
     $marks.getenumerator() | export-csv "$_marksPath" -notype
+    $script:_knownBookmarks = Import-PSMarkKeys # and update the known keys 
 }
 
 
@@ -142,7 +143,6 @@ function Remove-PSMark () {
 # List all available psmarks
 function Get-PSMarks {
     $_marks = Import-PSMarks
-    # $_marks.Clone()
     $_marks | Format-Table -AutoSize
 }
 
