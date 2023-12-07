@@ -10,7 +10,7 @@ function Get-ProfileDataFile {
     )
     return Join-Path (Get-ProfileDir $moduleName) $file
     
-}
+} 
 
 function Get-ProfileDir {
     param (
@@ -141,9 +141,25 @@ function Remove-PSMark () {
 
 
 # List all available psmarks
-function Get-PSMarks {
+function List-PSMarks {
     $_marks = Import-PSMarks
     $_marks | Format-Table -AutoSize
+}
+
+function Get-PSMark {
+    Param(
+        [Parameter(Position = 0, ValueFromPipelineByPropertyName = $True, Mandatory = $true)]
+        [Alias("Bookmark")]
+        [ArgumentCompleter(
+            {
+                param($Command, $Parameter, $WordToComplete, $CommandAst, $FakeBoundParams)
+                return @($_marks) -like "$WordToComplete*"
+            }
+        )]
+        $BookmarkName
+    )
+    $_marks = Import-PSMarks
+    Write-Output $_marks["$BookmarkName"]
 }
 
 function Open-PSMark {
@@ -194,6 +210,21 @@ Register-ArgumentCompleter -CommandName 'Remove-PSMark' -ParameterName 'Bookmark
     }
 }
 
+Register-ArgumentCompleter -CommandName 'Get-PSMark' -ParameterName 'BookmarkName' -ScriptBlock {
+    param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
+
+    
+    if ($wordToComplete) {
+        # Filter options matching the entered text
+        $filteredOptions = $Script:_knownBookmarks -like "$wordToComplete*"
+        $filteredOptions
+    }
+    else {
+        # Display all options if no text is entered
+        $Script:_knownBookmarks
+    }
+}
+
 
 # ==============================================================================
 # initialize bookmark file location
@@ -201,7 +232,8 @@ _PSMarks_Initalize
 
 # ==============================================================================
 # Aliases
-Set-Alias l Get-PSMarks -Scope Global
+Set-Alias l List-PSMarks -Scope Global
 Set-Alias g Open-PSMark -Scope Global
+Set-Alias p Get-PSMark -Scope Global
 Set-Alias s Add-PSMark -Scope Global
 Set-Alias d Remove-PSMark -Scope Global
