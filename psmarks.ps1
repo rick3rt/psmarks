@@ -143,7 +143,7 @@ function Remove-PSMark () {
 # List all available psmarks
 function List-PSMarks {
     $_marks = Import-PSMarks
-    $_marks | Format-Table -AutoSize
+    $_marks.GetEnumerator() | Sort-Object Name | Format-Table Name, Value -AutoSize
 }
 
 function Get-PSMark {
